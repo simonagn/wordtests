@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Unit 3 – School | Szóteszt</title>
+<style>
+  :root{
+    --green:#1f8a4c; --green-d:#166b3a; --green-l:#e6f4ea;
+    --ink:#1d2730; --muted:#5f6b76; --line:#d9e0e6; --bg:#f4f7f5;
+    --red:#c0392b; --amber:#e6a100;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
+       background:var(--bg);color:var(--ink);min-height:100vh;display:flex;flex-direction:column}
+  header{background:var(--green);color:#fff;padding:14px 20px}
+  header h1{margin:0;font-size:1.15rem;font-weight:600;letter-spacing:.2px}
+  header span{opacity:.85;font-weight:400}
+  main{flex:1;display:flex;justify-content:center;align-items:flex-start;padding:24px 16px}
+  .card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:28px;
+        width:100%;max-width:620px;box-shadow:0 2px 10px rgba(0,0,0,.04)}
+  h2{margin:0 0 6px;font-size:1.4rem}
+  p{line-height:1.5}
+  .muted{color:var(--muted)}
+  ul.rules{padding-left:20px;line-height:1.7;margin:14px 0 20px}
+  label{display:block;font-weight:600;margin:14px 0 6px;font-size:.95rem}
+  input[type=text]{width:100%;padding:12px 14px;font-size:1rem;border:1px solid var(--line);
+       border-radius:10px;outline:none}
+  input[type=text]:focus{border-color:var(--green);box-shadow:0 0 0 3px var(--green-l)}
+  .btn{display:inline-block;margin-top:22px;background:var(--green);color:#fff;border:0;
+       padding:13px 26px;font-size:1rem;font-weight:600;border-radius:10px;cursor:pointer}
+  .btn:hover{background:var(--green-d)}
+  .btn:disabled{background:#9bb5a5;cursor:not-allowed}
+  .error{color:var(--red);font-size:.92rem;margin-top:10px;min-height:1.2em}
+  .deadline{background:var(--green-l);border-radius:10px;padding:10px 14px;font-size:.95rem}
+
+  /* quiz */
+  .topbar{display:flex;justify-content:space-between;align-items:center;font-size:.95rem;color:var(--muted)}
+  .timer{font-variant-numeric:tabular-nums;font-weight:700;color:var(--ink)}
+  .timer.warn{color:var(--red)}
+  .bar{height:8px;background:#e8ecef;border-radius:99px;margin:10px 0 4px;overflow:hidden}
+  .bar > div{height:100%;background:var(--green);width:100%;transition:width .2s linear}
+  .bar.warn > div{background:var(--red)}
+  .progress{height:4px;background:#eef1f3;border-radius:99px;overflow:hidden;margin-bottom:26px}
+  .progress > div{height:100%;background:var(--amber);width:0}
+  .prompt-label{text-align:center;color:var(--muted);font-size:.9rem;margin-bottom:6px}
+  .word{text-align:center;font-size:1.9rem;font-weight:700;margin:0 0 26px;word-break:break-word}
+  .options{display:grid;gap:12px}
+  .opt{text-align:left;background:#fff;border:2px solid var(--line);border-radius:12px;
+       padding:14px 16px;font-size:1.05rem;cursor:pointer;color:var(--ink);display:flex;gap:12px;align-items:center}
+  .opt:hover{border-color:var(--green);background:var(--green-l)}
+  .opt .k{flex:none;width:28px;height:28px;border-radius:50%;background:#eef1f3;display:grid;
+          place-items:center;font-weight:700;font-size:.85rem;color:var(--muted)}
+  .opt.picked{border-color:var(--green);background:var(--green-l)}
+  .opt:disabled{cursor:default}
+
+  /* result */
+  .score{font-size:3rem;font-weight:800;color:var(--green);margin:10px 0 0}
+  .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:20px 0}
+  .stat{background:var(--bg);border-radius:10px;padding:12px;text-align:center}
+  .stat b{display:block;font-size:1.25rem}
+  .stat span{font-size:.82rem;color:var(--muted)}
+  .send{padding:12px 14px;border-radius:10px;font-size:.95rem;margin-top:8px}
+  .send.ok{background:var(--green-l);color:var(--green-d)}
+  .send.wait{background:#fff6dd;color:#7a5b00}
+  .send.fail{background:#fdecea;color:var(--red)}
+  .hidden{display:none}
+  @media (max-width:480px){ .card{padding:20px} .word{font-size:1.5rem} .stats{grid-template-columns:1fr 1fr 1fr} }
+</style>
+</head>
+<body>
+<header><h1>Matura Leader B1 · Unit 3 <span>– School · Szóteszt</span></h1></header>
+<main>
+
+  <!-- START -->
+  <section id="start" class="card">
+    <h2>Szóteszt – School</h2>
+    <p class="muted">Válaszd ki az angol szó vagy kifejezés helyes magyar jelentését!</p>
+    <div class="deadline" id="deadlineInfo"></div>
+    <ul class="rules">
+      <li><b>44 kérdés</b>, mindegyiknél 4 lehetőség, ebből 1 helyes.</li>
+      <li>Egy kérdésre <b>20 másodperced</b> van. Ha lejár, a kérdés hibásnak számít.</li>
+      <li>Válaszadás után nem lehet visszalépni.</li>
+      <li>Csak <b>egyszer</b> töltsd ki! Ne frissítsd az oldalt, és ne válts át másik lapra.</li>
+    </ul>
+    <label for="name">Teljes neved</label>
+    <input type="text" id="name" autocomplete="name" placeholder="pl. Kovács Anna">
+    <label for="cls">Osztályod</label>
+    <input type="text" id="cls" placeholder="pl. 10.A">
+    <div class="error" id="startError"></div>
+    <button class="btn" id="startBtn">Indulhat a teszt</button>
+  </section>
+
+  <!-- CLOSED / ALREADY DONE -->
+  <section id="closed" class="card hidden">
+    <h2 id="closedTitle"></h2>
+    <p id="closedText" class="muted"></p>
+  </section>
+
+  <!-- QUIZ -->
+  <section id="quiz" class="card hidden">
+    <div class="topbar">
+      <div id="counter">1 / 44</div>
+      <div class="timer" id="timer">20</div>
+    </div>
+    <div class="bar" id="bar"><div id="barFill"></div></div>
+    <div class="progress"><div id="progFill"></div></div>
+    <div class="prompt-label">Mit jelent?</div>
+    <div class="word" id="word"></div>
+    <div class="options" id="options"></div>
+  </section>
+
+  <!-- RESULT -->
+  <section id="result" class="card hidden">
+    <h2>Kész vagy! 🎉</h2>
+    <p class="muted" id="resName"></p>
+    <div class="score" id="resScore"></div>
+    <div class="stats">
+      <div class="stat"><b id="resPct"></b><span>eredmény</span></div>
+      <div class="stat"><b id="resTime"></b><span>idő</span></div>
+      <div class="stat"><b id="resTimeout"></b><span>lejárt idő</span></div>
+    </div>
+    <div class="send wait" id="sendStatus">Eredmény küldése a tanárnak…</div>
+    <button class="btn hidden" id="retryBtn">Újraküldés</button>
+  </section>
+
+</main>
+
+<script>
+/* ================== BEÁLLÍTÁSOK ================== */
+// Ide kerül a Google Apps Script webalkalmazás URL-je (lásd README.md)
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbz7JQPZjiCIBNetH8Bpn0DAWdz0OYjQK239jd2vpeGJ_s_uvDO438LxUW-JaKpeMQrh/exec";
+// Határidő: kedd (2026. 11. 10.) 20:00, magyar idő szerint
+const DEADLINE = new Date("2026-11-10T20:00:00+01:00");
+const SECONDS_PER_QUESTION = 20;
+const QUIZ_ID = "ML-B1-U3-School";
+
+/* ================== SZAVAK (44 db) ================== */
+// [angol, magyar, kategória] – a rossz válaszokat lehetőleg azonos kategóriából veszi
+const WORDS = [
+  ["business studies","üzleti tanulmányok","subj"],
+  ["civic education","állampolgári ismeretek","subj"],
+  ["religious education","hittan","subj"],
+  ["boarding school","bentlakásos iskola","type"],
+  ["evening classes","esti tagozat","type"],
+  ["kindergarten","óvoda","type"],
+  ["language school","nyelviskola","type"],
+  ["private school","magániskola","type"],
+  ["secondary school","középiskola","type"],
+  ["vocational school","szakiskola","type"],
+  ["staff room","tanári szoba","thing"],
+  ["uniform","egyenruha","thing"],
+  ["canteen","menza","thing"],
+  ["headmaster's office","igazgatói iroda","thing"],
+  ["locker","öltözőszekrény","thing"],
+  ["notice board","faliújság","thing"],
+  ["rubber","radír","thing"],
+  ["ruler","vonalzó","thing"],
+  ["sharpener","hegyező","thing"],
+  ["playground","játszótér","thing"],
+  ["timetable","órarend","study"],
+  ["absence","hiányzás","study"],
+  ["attendance","jelenlét","study"],
+  ["be expelled from school","kizárják az iskolából","verb"],
+  ["cheat in the exam","csal a vizsgán","verb"],
+  ["class tutor","osztályfőnök","person"],
+  ["cram all night for the test","egész éjjel magol a dolgozatra","verb"],
+  ["extra activities","tanórán kívüli tevékenységek","study"],
+  ["fail an exam","megbukik a vizsgán","verb"],
+  ["get a scholarship","ösztöndíjat kap","verb"],
+  ["get into university","felveszik az egyetemre","verb"],
+  ["learn by heart","kívülről megtanul","verb"],
+  ["mock exam","próbavizsga","study"],
+  ["skip classes","lóg az óráról","verb"],
+  ["school report","iskolai értesítő, bizonyítvány","study"],
+  ["term","félév","study"],
+  ["entrance exam","felvételi vizsga","study"],
+  ["compulsory","kötelező","adj"],
+  ["strict","szigorú","adj"],
+  ["punctual","pontos","adj"],
+  ["messy","rendetlen","adj"],
+  ["patient","türelmes","adj"],
+  ["good at","ügyes valamiben","prep"],
+  ["worried about","aggódik valami miatt","prep"]
+];
+
+/* ================== SEGÉDFÜGGVÉNYEK ================== */
+const $ = id => document.getElementById(id);
+function shuffle(a){ a=a.slice(); for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];} return a; }
+function fmtTime(sec){ const m=Math.floor(sec/60), s=sec%60; return m+":"+String(s).padStart(2,"0"); }
+function show(id){ ["start","closed","quiz","result"].forEach(s=>$(s).classList.toggle("hidden", s!==id)); }
+function lsGet(k){ try{return localStorage.getItem(k);}catch(e){return null;} }
+function lsSet(k,v){ try{localStorage.setItem(k,v);}catch(e){} }
+
+// kérdések felépítése: véletlen sorrend + véletlen válaszlehetőségek
+function buildQuestions(){
+  return shuffle(WORDS).map(([en,hu,cat])=>{
+    const same = shuffle(WORDS.filter(w=>w[2]===cat && w[1]!==hu).map(w=>w[1]));
+    const other = shuffle(WORDS.filter(w=>w[2]!==cat).map(w=>w[1]));
+    const distractors = [...new Set([...same, ...other])].slice(0,3);
+    return { en, hu, options: shuffle([hu, ...distractors]) };
+  });
+}
+
+/* ================== ÁLLAPOT ================== */
+let questions=[], idx=0, answers=[], timerId=null, qStart=0, startedAt=0, tabSwitches=0, running=false, payload=null;
+
+/* ================== INDULÁS ================== */
+const fmtDeadline = DEADLINE.toLocaleString("hu-HU",{timeZone:"Europe/Budapest",weekday:"long",month:"long",day:"numeric",hour:"2-digit",minute:"2-digit"});
+$("deadlineInfo").innerHTML = "⏰ Határidő: <b>"+fmtDeadline+"</b>";
+
+function checkAvailability(){
+  if (Date.now() > DEADLINE.getTime()){
+    $("closedTitle").textContent = "A határidő lejárt";
+    $("closedText").textContent = "Ezt a tesztet "+fmtDeadline+"-ig lehetett kitölteni.";
+    show("closed"); return false;
+  }
+  if (lsGet(QUIZ_ID+"_done")){
+    $("closedTitle").textContent = "Ezt a tesztet már kitöltötted ✅";
+    $("closedText").textContent = "Az eredményed: "+lsGet(QUIZ_ID+"_done")+". Az eredményt a tanárod már látja.";
+    show("closed"); return false;
+  }
+  return true;
+}
+checkAvailability();
+const savedName = lsGet(QUIZ_ID+"_name"); if(savedName) $("name").value = savedName;
+const savedCls = lsGet(QUIZ_ID+"_cls"); if(savedCls) $("cls").value = savedCls;
+
+$("startBtn").addEventListener("click", ()=>{
+  const name = $("name").value.trim().replace(/\s+/g," ");
+  const cls = $("cls").value.trim();
+  if (name.split(" ").length < 2){ $("startError").textContent = "Kérlek, add meg a teljes neved (vezeték- és keresztnév)!"; return; }
+  if (!cls){ $("startError").textContent = "Kérlek, add meg az osztályodat!"; return; }
+  if (!checkAvailability()) return;
+  lsSet(QUIZ_ID+"_name", name); lsSet(QUIZ_ID+"_cls", cls);
+  const attempt = (parseInt(lsGet(QUIZ_ID+"_attempts")||"0",10))+1;
+  lsSet(QUIZ_ID+"_attempts", String(attempt));
+  payload = { quiz: QUIZ_ID, name, className: cls, attempt };
+  questions = buildQuestions(); idx=0; answers=[]; tabSwitches=0;
+  startedAt = Date.now(); running = true;
+  show("quiz"); renderQuestion();
+});
+
+/* ================== KVÍZ ================== */
+function renderQuestion(){
+  const q = questions[idx];
+  $("counter").textContent = (idx+1)+" / "+questions.length;
+  $("progFill").style.width = (idx/questions.length*100)+"%";
+  $("word").textContent = q.en;
+  const box = $("options"); box.innerHTML = "";
+  q.options.forEach((opt,i)=>{
+    const b = document.createElement("button");
+    b.className = "opt";
+    b.innerHTML = '<span class="k">'+"ABCD"[i]+'</span><span></span>';
+    b.lastChild.textContent = opt;
+    b.addEventListener("click", ()=>choose(opt,b));
+    box.appendChild(b);
+  });
+  qStart = Date.now();
+  tick(); clearInterval(timerId); timerId = setInterval(tick, 200);
+}
+
+function tick(){
+  const left = Math.max(0, SECONDS_PER_QUESTION - (Date.now()-qStart)/1000);
+  $("timer").textContent = Math.ceil(left);
+  $("barFill").style.width = (left/SECONDS_PER_QUESTION*100)+"%";
+  const warn = left <= 5;
+  $("timer").classList.toggle("warn", warn); $("bar").classList.toggle("warn", warn);
+  if (left <= 0) choose(null, null);
+}
+
+function choose(opt, btn){
+  clearInterval(timerId);
+  const q = questions[idx];
+  document.querySelectorAll(".opt").forEach(b=>b.disabled=true);
+  if (btn) btn.classList.add("picked");
+  answers.push({ en:q.en, correct:q.hu, given:opt, ok: opt===q.hu, timeout: opt===null });
+  setTimeout(()=>{
+    idx++;
+    if (idx < questions.length) renderQuestion(); else finish();
+  }, btn ? 350 : 150);
+}
+
+// lapváltás figyelése
+document.addEventListener("visibilitychange", ()=>{ if (running && document.hidden) tabSwitches++; });
+window.addEventListener("beforeunload", e=>{ if (running){ e.preventDefault(); e.returnValue=""; } });
+
+/* ================== EREDMÉNY ================== */
+function finish(){
+  running = false;
+  const durationSec = Math.round((Date.now()-startedAt)/1000);
+  const score = answers.filter(a=>a.ok).length;
+  const timeouts = answers.filter(a=>a.timeout).length;
+  const pct = Math.round(score/answers.length*100);
+  Object.assign(payload, {
+    score, total: answers.length, percent: pct, durationSec, timeouts, tabSwitches,
+    startedAt: new Date(startedAt).toISOString(),
+    wrong: answers.filter(a=>!a.ok).map(a=>a.en+" ("+(a.timeout?"lejárt":"→ "+a.given)+")")
+  });
+  lsSet(QUIZ_ID+"_done", score+"/"+answers.length);
+  $("resName").textContent = payload.name+" · "+payload.className;
+  $("resScore").textContent = score+" / "+answers.length;
+  $("resPct").textContent = pct+"%";
+  $("resTime").textContent = fmtTime(durationSec);
+  $("resTimeout").textContent = timeouts;
+  show("result");
+  send();
+}
+
+async function send(){
+  const st = $("sendStatus");
+  st.className = "send wait"; st.textContent = "Eredmény küldése a tanárnak…";
+  $("retryBtn").classList.add("hidden");
+  const body = JSON.stringify(payload);
+  try{
+    const r = await fetch(SCRIPT_URL, { method:"POST", body }); // text/plain → nincs CORS előkérés
+    const data = await r.json();
+    if (data.ok){ st.className="send ok"; st.textContent="✅ Az eredményedet elküldtük a tanárnak."; return; }
+    if (data.error==="deadline"){ st.className="send fail"; st.textContent="A határidő lejárt, az eredményt már nem lehetett beküldeni."; return; }
+    throw new Error(data.error||"ismeretlen hiba");
+  }catch(err){
+    // tartalék: no-cors küldés (válasz nem olvasható, de a beírás megtörténik)
+    try{
+      await fetch(SCRIPT_URL, { method:"POST", mode:"no-cors", body });
+      st.className="send ok"; st.textContent="✅ Az eredményedet elküldtük a tanárnak.";
+    }catch(e2){
+      st.className="send fail";
+      st.textContent="⚠️ Nem sikerült elküldeni (nincs internet?). Próbáld újra, és ha nem megy, készíts képernyőképet erről az oldalról!";
+      $("retryBtn").classList.remove("hidden");
+    }
+  }
+}
+$("retryBtn").addEventListener("click", send);
+</script>
+</body>
+</html>
